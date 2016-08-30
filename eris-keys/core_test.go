@@ -4,13 +4,10 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"os"
 	"testing"
 
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/common/go/common"
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/common/go/log"
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/tendermint/account"
-	_ "github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/tendermint/wire"
+	"github.com/eris-ltd/common/go/common"
+	ed25519 "github.com/eris-ltd/eris-keys/crypto/helpers"
 	"github.com/eris-ltd/eris-keys/crypto"
 )
 
@@ -23,7 +20,6 @@ var (
 func init() {
 	// TODO: randomize and do setup/tear down for tests
 	KeysDir = common.ScratchPath
-	log.SetLoggers(0, os.Stdout, os.Stderr)
 }
 
 func dumpKey(k *crypto.Key) {
@@ -133,7 +129,7 @@ func checkAddrFromPub(typ string, pub, addr []byte) error {
 	case "ed25519,ripemd160":
 		// XXX: something weird here. I have seen this oscillate!
 		// addr2 = binary.BinaryRipemd160(pub)
-		var pubArray account.PubKeyEd25519
+		var pubArray ed25519.PubKeyEd25519
 		copy(pubArray[:], pub)
 		addr2 = pubArray.Address()
 	default:

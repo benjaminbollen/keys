@@ -1,0 +1,141 @@
+hash: e5f7538d280621e012499bed2d77dd6cc122ad4fa16023524f4c4318ead6185a
+updated: 2016-08-31T14:25:45.163861072-05:00
+imports:
+- name: github.com/bugsnag/bugsnag-go
+  version: 2b6337ec4aee214cc3ce46ee20d20a574ebbb1c7
+  subpackages:
+  - errors
+- name: github.com/bugsnag/osext
+  version: 0dd3f918b21bec95ace9dc86c7e70266cfc5c702
+- name: github.com/bugsnag/panicwrap
+  version: d6191e27ad06236eaad65d79e49a08b03b9f8029
+- name: github.com/eris-ltd/common
+  version: 92c437c9919c9d7baf60ef3d376461189c1c6c25
+  subpackages:
+  - go/common
+- name: github.com/eris-ltd/eris-keys
+  version: 114ebc77443db9a153692233294e48bc7e184215
+  subpackages:
+  - eris-keys
+  - crypto/randentropy
+  - crypto/secp256k1
+  - crypto/sha3
+  - crypto/ed25519
+  - version
+  - crypto
+  - Godeps/_workspace/src/github.com/eris-ltd/common/go/common
+  - Godeps/_workspace/src/github.com/eris-ltd/common/go/log
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/account
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/wire
+  - Godeps/_workspace/src/github.com/howeyc/gopass
+  - Godeps/_workspace/src/github.com/rs/cors
+  - Godeps/_workspace/src/github.com/spf13/cobra
+  - Godeps/_workspace/src/golang.org/x/crypto/ripemd160
+  - Godeps/_workspace/src/github.com/agl/ed25519/edwards25519
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid
+  - Godeps/_workspace/src/golang.org/x/crypto/scrypt
+  - Godeps/_workspace/src/github.com/mitchellh/go-homedir
+  - Godeps/_workspace/src/github.com/Sirupsen/logrus
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/common
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/merkle
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/permission/types
+  - Godeps/_workspace/src/github.com/tendermint/ed25519
+  - Godeps/_workspace/src/github.com/tendermint/ed25519/extra25519
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/logger
+  - Godeps/_workspace/src/github.com/tendermint/log15
+  - Godeps/_workspace/src/golang.org/x/crypto/ssh/terminal
+  - Godeps/_workspace/src/github.com/inconshreveable/mousetrap
+  - Godeps/_workspace/src/github.com/spf13/pflag
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/dcesecurity
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/layout
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/namebased
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/namebased/md5
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/namebased/sha1
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/random
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/timebased
+  - Godeps/_workspace/src/github.com/wayn3h0/go-uuid/internal/version
+  - Godeps/_workspace/src/golang.org/x/crypto/pbkdf2
+  - Godeps/_workspace/src/golang.org/x/sys/unix
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/db
+  - Godeps/_workspace/src/github.com/eris-ltd/tendermint/config
+  - Godeps/_workspace/src/github.com/inconshreveable/log15/stack
+  - Godeps/_workspace/src/github.com/inconshreveable/log15/term
+  - Godeps/_workspace/src/github.com/mattn/go-colorable
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/errors
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/opt
+  - Godeps/_workspace/src/github.com/naoina/toml
+  - Godeps/_workspace/src/github.com/mattn/go-isatty
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/cache
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/comparer
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/filter
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/iterator
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/journal
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/memdb
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/storage
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/table
+  - Godeps/_workspace/src/github.com/syndtr/goleveldb/leveldb/util
+  - Godeps/_workspace/src/github.com/naoina/go-stringutil
+  - Godeps/_workspace/src/github.com/naoina/toml/ast
+  - Godeps/_workspace/src/github.com/syndtr/gosnappy/snappy
+- name: github.com/eris-ltd/eris-logger
+  version: aa1d50814ef98f3e3b048e7ef67ffcb2076582b0
+- name: github.com/go-stack/stack
+  version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
+- name: github.com/howeyc/gopass
+  version: 3ca23474a7c7203e0a0a070fd33508f6efdb9b3d
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/mattn/go-colorable
+  version: ed8eb9e318d7a84ce5915b495b7d35e0cfe7b5a8
+- name: github.com/mattn/go-isatty
+  version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
+- name: github.com/rs/cors
+  version: a62a804a8a009876ca59105f7899938a1349f4b3
+- name: github.com/rs/xhandler
+  version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
+- name: github.com/spf13/cobra
+  version: 9c28e4bbd74e5c3ed7aacbc552b2cab7cfdfe744
+- name: github.com/spf13/pflag
+  version: 103ce5cd2042f2fe629c1957abb64ab3e7f50235
+- name: github.com/tendermint/ed25519
+  version: 1f52c6f8b8a5c7908aff4497c186af344b428925
+  subpackages:
+  - edwards25519
+- name: github.com/tendermint/go-common
+  version: 3dabf304a16e42ce2db6a456ef508a75cdf17679
+- name: github.com/tendermint/go-logger
+  version: cefb3a45c0bf3c493a04e9bcd9b1540528be59f2
+- name: github.com/tendermint/go-wire
+  version: 3b0adbc86ed8425eaed98516165b6788d9f4de7a
+- name: github.com/tendermint/log15
+  version: 9545b249b3aacafa97f79e0838b02b274adc6f5f
+  subpackages:
+  - term
+- name: github.com/wayn3h0/go-uuid
+  version: 71e8f6f01226f577139a7b4f9c8161f7311d3bac
+  subpackages:
+  - internal/dcesecurity
+  - internal/layout
+  - internal/namebased
+  - internal/namebased/md5
+  - internal/namebased/sha1
+  - internal/random
+  - internal/timebased
+  - internal/version
+- name: golang.org/x/crypto
+  version: 33b41827e673eff8a3b8c2f2089bf0d14d99e1ef
+  subpackages:
+  - ripemd160
+  - scrypt
+  - pbkdf2
+  - ssh/terminal
+- name: golang.org/x/net
+  version: 9bc2a3340c92c17a20edcd0080e93851ed58f5d5
+  subpackages:
+  - context
+- name: golang.org/x/sys
+  version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
+  subpackages:
+  - unix
+devImports: []

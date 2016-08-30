@@ -3,9 +3,13 @@ FROM quay.io/eris/build
 
 MAINTAINER Eris Industries <support@erisindustries.com>
 
+RUN apk add --update openssl
+
 ENV REPOSITORY "github.com/eris-ltd/eris-keys"
 COPY . /go/src/$REPOSITORY/
 WORKDIR /go/src/$REPOSITORY/
+
+RUN go get github.com/Masterminds/glide && glide install -s -v
 
 RUN chown -R $USER:$USER ./
 RUN go install

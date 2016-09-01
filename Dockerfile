@@ -17,8 +17,11 @@ ADD glide.lock $ERIS_KEYS_SRC_PATH/
 # install glide for dependency management
 RUN go get github.com/Masterminds/glide \
   # install dependencies for eris-keys with glide
+  && go get github.com/sgotti/glide-vc \
   && cd $ERIS_KEYS_SRC_PATH \
-  && glide install
+  && glide install \
+  && glide vc \
+  && glide cc
 
 #-----------------------------------------------------------------------------
 # install mint-client [to be deprecated]

@@ -30,7 +30,6 @@ func cliKeygen(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	log.Warn("Key generated: ", r)
 	LogToChannel([]byte(r))
 }
 
@@ -40,7 +39,6 @@ func cliLock(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -50,7 +48,6 @@ func cliConvert(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -61,7 +58,6 @@ func cliUnlock(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -73,7 +69,6 @@ func cliPub(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn("Key published: ", r)
 	LogToChannel([]byte(r))
 }
 
@@ -88,7 +83,6 @@ func cliSign(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -102,7 +96,6 @@ func cliVerify(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -116,7 +109,6 @@ func cliHash(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn("Hash: ", r)
 	LogToChannel([]byte(r))
 }
 
@@ -145,7 +137,6 @@ func cliImport(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -163,7 +154,6 @@ func cliName(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }
 
@@ -191,6 +181,5 @@ func cliNameRm(cmd *cobra.Command, args []string) {
 		ExitConnectErr(err)
 	}
 	IfExit(err)
-	log.Warn(r)
 	LogToChannel([]byte(r))
 }

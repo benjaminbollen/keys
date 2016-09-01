@@ -1,0 +1,599 @@
+package helpers
+
+import (
+	"fmt"
+	"reflect"
+	"encoding/binary"
+	"errors"
+	"io"
+	"sync"
+	"time"
+
+	"github.com/eris-ltd/common/go/common"
+)
+
+var (
+	timeType = GetTypeFromStructDeclaration(struct{ time.Time }{})
+)
+
+func GetTypeFromStructDeclaration(o interface{}) reflect.Type {
+	rt := reflect.TypeOf(o)
+	if rt.NumField() != 1 {
+		common.IfExit(errors.New("Unexpected number of fields in struct-wrapped declaration of type"))
+	}
+	return rt.Field(0).Type
+}
+
+func WriteBinary(o interface{}, w io.Writer, n *int64, err *error) {
+	rv := reflect.ValueOf(o)
+	rt := reflect.TypeOf(o)
+	writeReflectBinary(rv, rt, Options{}, w, n, err)
+}
+
+// Write all of bz to w
+// Increment n and set err accordingly.
+func WriteTo(bz []byte, w io.Writer, n *int64, err *error) {
+	if *err != nil {
+		return
+	}
+	n_, err_ := w.Write(bz)
+	*n += int64(n_)
+	*err = err_
+}
+
+func WriteTime(t time.Time, w io.Writer, n *int64, err *error) {
+	nanosecs := t.UnixNano()
+	millisecs := nanosecs / 1000000
+	WriteInt64(millisecs*1000000, w, n, err)
+}
+
+func ReadFull(buf []byte, r io.Reader, n *int64, err *error) {
+	if *err != nil {
+		return
+	}
+	n_, err_ := io.ReadFull(r, buf)
+	*n += int64(n_)
+	*err = err_
+}
+
+func MakeTypeInfo(rt reflect.Type) *TypeInfo {
+	info := &TypeInfo{Type: rt}
+
+	// If struct, register field name options
+	if rt.Kind() == reflect.Struct {
+		numFields := rt.NumField()
+		structFields := []StructFieldInfo{}
+		for i := 0; i < numFields; i++ {
+			field := rt.Field(i)
+			if field.PkgPath != "" {
+				continue
+			}
+			skip, opts := getOptionsFromField(field)
+			if skip {
+				continue
+			}
+			structFields = append(structFields, StructFieldInfo{
+				Index:   i,
+				Type:    field.Type,
+				Options: opts,
+			})
+		}
+		info.Fields = structFields
+	}
+
+	return info
+}
+
+func getOptionsFromField(field reflect.StructField) (skip bool, opts Options) {
+	jsonName := field.Tag.Get("json")
+	if jsonName == "-" {
+		skip = true
+		return
+	} else if jsonName == "" {
+		jsonName = field.Name
+	}
+	varint := false
+	binTag := field.Tag.Get("binary")
+	if binTag == "varint" { // TODO: extend
+		varint = true
+	}
+	opts = Options{
+		JSONName: jsonName,
+		Varint:   varint,
+	}
+	return
+}
+
+func writeReflectBinary(rv reflect.Value, rt reflect.Type, opts Options, w io.Writer, n *int64, err *error) {
+
+	// Get typeInfo
+	typeInfo := GetTypeInfo(rt)
+
+	if rt.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			// XXX ensure that typeByte 0 is reserved.
+			WriteByte(0x00, w, n, err)
+			return
+		}
+		crv := rv.Elem()  // concrete reflection value
+		crt := crv.Type() // concrete reflection type
+		if typeInfo.IsRegisteredInterface {
+			// See if the crt is registered.
+			// If so, we're more restrictive.
+			_, ok := typeInfo.TypeToByte[crt]
+			if !ok {
+				switch crt.Kind() {
+				case reflect.Ptr:
+					*err = fmt.Errorf("Unexpected pointer type %v for registered interface %v. "+
+						"Was it registered as a value receiver rather than as a pointer receiver?", crt, rt.Name())
+				case reflect.Struct:
+					*err = fmt.Errorf("Unexpected struct type %v for registered interface %v. "+
+						"Was it registered as a pointer receiver rather than as a value receiver?", crt, rt.Name())
+				default:
+					*err = fmt.Errorf("Unexpected type %v for registered interface %v. "+
+						"If this is intentional, please register it.", crt, rt.Name())
+				}
+				return
+			}
+		} else {
+			// We support writing unsafely for convenience.
+		}
+		// We don't have to write the typeByte here,
+		// the writeReflectBinary() call below will write it.
+		writeReflectBinary(crv, crt, opts, w, n, err)
+		return
+	}
+
+	if rt.Kind() == reflect.Ptr {
+		// Dereference pointer
+		rv, rt = rv.Elem(), rt.Elem()
+		typeInfo = GetTypeInfo(rt)
+		if !rv.IsValid() {
+			// For better compatibility with other languages,
+			// as far as tendermint/wire is concerned,
+			// pointers to nil values are the same as nil.
+			WriteByte(0x00, w, n, err)
+			return
+		}
+		if typeInfo.Byte == 0x00 {
+			WriteByte(0x01, w, n, err)
+			// continue...
+		} else {
+			// continue...
+		}
+	}
+
+	// Write type byte
+	if typeInfo.Byte != 0x00 {
+		WriteByte(typeInfo.Byte, w, n, err)
+	}
+
+	// All other types
+	switch rt.Kind() {
+	case reflect.Array:
+		elemRt := rt.Elem()
+		length := rt.Len()
+		if elemRt.Kind() == reflect.Uint8 {
+			// Special case: Bytearrays
+			if rv.CanAddr() {
+				byteslice := rv.Slice(0, length).Bytes()
+				WriteTo(byteslice, w, n, err)
+			} else {
+				buf := make([]byte, length)
+				reflect.Copy(reflect.ValueOf(buf), rv)
+				WriteTo(buf, w, n, err)
+			}
+		} else {
+			// Write elems
+			for i := 0; i < length; i++ {
+				elemRv := rv.Index(i)
+				writeReflectBinary(elemRv, elemRt, opts, w, n, err)
+			}
+		}
+
+	case reflect.Slice:
+		elemRt := rt.Elem()
+		if elemRt.Kind() == reflect.Uint8 {
+			// Special case: Byteslices
+			byteslice := rv.Bytes()
+			WriteByteSlice(byteslice, w, n, err)
+		} else {
+			// Write length
+			length := rv.Len()
+			WriteVarint(length, w, n, err)
+			// Write elems
+			for i := 0; i < length; i++ {
+				elemRv := rv.Index(i)
+				writeReflectBinary(elemRv, elemRt, opts, w, n, err)
+			}
+		}
+
+	case reflect.Struct:
+		if rt == timeType {
+			// Special case: time.Time
+			WriteTime(rv.Interface().(time.Time), w, n, err)
+		} else {
+			for _, fieldInfo := range typeInfo.Fields {
+				i, fieldType, opts := fieldInfo.unpack()
+				fieldRv := rv.Field(i)
+				writeReflectBinary(fieldRv, fieldType, opts, w, n, err)
+			}
+		}
+
+	case reflect.String:
+		WriteString(rv.String(), w, n, err)
+
+	case reflect.Int64:
+		if opts.Varint {
+			WriteVarint(int(rv.Int()), w, n, err)
+		} else {
+			WriteInt64(rv.Int(), w, n, err)
+		}
+
+	case reflect.Int32:
+		WriteInt32(int32(rv.Int()), w, n, err)
+
+	case reflect.Int16:
+		WriteInt16(int16(rv.Int()), w, n, err)
+
+	case reflect.Int8:
+		WriteInt8(int8(rv.Int()), w, n, err)
+
+	case reflect.Int:
+		WriteVarint(int(rv.Int()), w, n, err)
+
+	case reflect.Uint64:
+		if opts.Varint {
+			WriteUvarint(uint(rv.Uint()), w, n, err)
+		} else {
+			WriteUint64(rv.Uint(), w, n, err)
+		}
+
+	case reflect.Uint32:
+		WriteUint32(uint32(rv.Uint()), w, n, err)
+
+	case reflect.Uint16:
+		WriteUint16(uint16(rv.Uint()), w, n, err)
+
+	case reflect.Uint8:
+		WriteUint8(uint8(rv.Uint()), w, n, err)
+
+	case reflect.Uint:
+		WriteUvarint(uint(rv.Uint()), w, n, err)
+
+	case reflect.Bool:
+		if rv.Bool() {
+			WriteUint8(uint8(1), w, n, err)
+		} else {
+			WriteUint8(uint8(0), w, n, err)
+		}
+
+	default:
+		common.IfExit(fmt.Errorf("Unknown field type %v", rt.Kind()))
+	}
+}
+
+var typeInfosMtx sync.Mutex
+var typeInfos = map[reflect.Type]*TypeInfo{}
+type TypeInfo struct {
+	Type reflect.Type // The type
+
+	// If Type is kind reflect.Interface, is registered
+	IsRegisteredInterface bool
+	ByteToType            map[byte]reflect.Type
+	TypeToByte            map[reflect.Type]byte
+
+	// If Type is concrete
+	Byte byte
+
+	// If Type is kind reflect.Struct
+	Fields []StructFieldInfo
+}
+type Options struct {
+	JSONName string // (JSON) Corresponding JSON field name. (override with `json=""`)
+	Varint   bool   // (Binary) Use length-prefixed encoding for (u)int*
+}
+
+type StructFieldInfo struct {
+	Index   int          // Struct field index
+	Type    reflect.Type // Struct field type
+	Options              // Encoding options
+}
+
+func WriteString(s string, w io.Writer, n *int64, err *error) {
+	WriteVarint(len(s), w, n, err)
+	WriteTo([]byte(s), w, n, err)
+}
+
+func (info StructFieldInfo) unpack() (int, reflect.Type, Options) {
+	return info.Index, info.Type, info.Options
+}
+
+func GetTypeInfo(rt reflect.Type) *TypeInfo {
+	typeInfosMtx.Lock()
+	defer typeInfosMtx.Unlock()
+	info := typeInfos[rt]
+	if info == nil {
+		info = MakeTypeInfo(rt)
+		typeInfos[rt] = info
+	}
+	return info
+}
+
+// Byte
+
+func WriteByte(b byte, w io.Writer, n *int64, err *error) {
+	WriteTo([]byte{b}, w, n, err)
+}
+
+func ReadByte(r io.Reader, n *int64, err *error) byte {
+	buf := make([]byte, 1)
+	ReadFull(buf, r, n, err)
+	return buf[0]
+}
+
+// Int8
+
+func WriteInt8(i int8, w io.Writer, n *int64, err *error) {
+	WriteByte(byte(i), w, n, err)
+}
+
+func ReadInt8(r io.Reader, n *int64, err *error) int8 {
+	return int8(ReadByte(r, n, err))
+}
+
+// Uint8
+
+func WriteUint8(i uint8, w io.Writer, n *int64, err *error) {
+	WriteByte(byte(i), w, n, err)
+}
+
+func ReadUint8(r io.Reader, n *int64, err *error) uint8 {
+	return uint8(ReadByte(r, n, err))
+}
+
+// Int16
+
+func WriteInt16(i int16, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, uint16(i))
+	*n += 2
+	WriteTo(buf, w, n, err)
+}
+
+func ReadInt16(r io.Reader, n *int64, err *error) int16 {
+	buf := make([]byte, 2)
+	ReadFull(buf, r, n, err)
+	return int16(binary.BigEndian.Uint16(buf))
+}
+
+// Uint16
+
+func WriteUint16(i uint16, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, uint16(i))
+	*n += 2
+	WriteTo(buf, w, n, err)
+}
+
+func ReadUint16(r io.Reader, n *int64, err *error) uint16 {
+	buf := make([]byte, 2)
+	ReadFull(buf, r, n, err)
+	return uint16(binary.BigEndian.Uint16(buf))
+}
+
+// []Uint16
+
+func WriteUint16s(iz []uint16, w io.Writer, n *int64, err *error) {
+	WriteUint32(uint32(len(iz)), w, n, err)
+	for _, i := range iz {
+		WriteUint16(i, w, n, err)
+		if *err != nil {
+			return
+		}
+	}
+}
+
+func ReadUint16s(r io.Reader, n *int64, err *error) []uint16 {
+	length := ReadUint32(r, n, err)
+	if *err != nil {
+		return nil
+	}
+	iz := make([]uint16, length)
+	for j := uint32(0); j < length; j++ {
+		ii := ReadUint16(r, n, err)
+		if *err != nil {
+			return nil
+		}
+		iz[j] = ii
+	}
+	return iz
+}
+
+// Int32
+
+func WriteInt32(i int32, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf, uint32(i))
+	*n += 4
+	WriteTo(buf, w, n, err)
+}
+
+func ReadInt32(r io.Reader, n *int64, err *error) int32 {
+	buf := make([]byte, 4)
+	ReadFull(buf, r, n, err)
+	return int32(binary.BigEndian.Uint32(buf))
+}
+
+// Uint32
+
+func WriteUint32(i uint32, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf, uint32(i))
+	*n += 4
+	WriteTo(buf, w, n, err)
+}
+
+func ReadUint32(r io.Reader, n *int64, err *error) uint32 {
+	buf := make([]byte, 4)
+	ReadFull(buf, r, n, err)
+	return uint32(binary.BigEndian.Uint32(buf))
+}
+
+// Int64
+
+func WriteInt64(i int64, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, uint64(i))
+	*n += 8
+	WriteTo(buf, w, n, err)
+}
+
+func ReadInt64(r io.Reader, n *int64, err *error) int64 {
+	buf := make([]byte, 8)
+	ReadFull(buf, r, n, err)
+	return int64(binary.BigEndian.Uint64(buf))
+}
+
+// Uint64
+
+func WriteUint64(i uint64, w io.Writer, n *int64, err *error) {
+	buf := make([]byte, 8)
+	binary.BigEndian.PutUint64(buf, uint64(i))
+	*n += 8
+	WriteTo(buf, w, n, err)
+}
+
+func ReadUint64(r io.Reader, n *int64, err *error) uint64 {
+	buf := make([]byte, 8)
+	ReadFull(buf, r, n, err)
+	return uint64(binary.BigEndian.Uint64(buf))
+}
+
+// Varint
+
+func uvarintSize(i uint64) int {
+	if i == 0 {
+		return 0
+	}
+	if i < 1<<8 {
+		return 1
+	}
+	if i < 1<<16 {
+		return 2
+	}
+	if i < 1<<24 {
+		return 3
+	}
+	if i < 1<<32 {
+		return 4
+	}
+	if i < 1<<40 {
+		return 5
+	}
+	if i < 1<<48 {
+		return 6
+	}
+	if i < 1<<56 {
+		return 7
+	}
+	return 8
+}
+
+func WriteVarint(i int, w io.Writer, n *int64, err *error) {
+	var negate = false
+	if i < 0 {
+		negate = true
+		i = -i
+	}
+	var size = uvarintSize(uint64(i))
+	if negate {
+		// e.g. 0xF1 for a single negative byte
+		WriteUint8(uint8(size+0xF0), w, n, err)
+	} else {
+		WriteUint8(uint8(size), w, n, err)
+	}
+	if size > 0 {
+		buf := make([]byte, 8)
+		binary.BigEndian.PutUint64(buf, uint64(i))
+		WriteTo(buf[(8-size):], w, n, err)
+	}
+	*n += int64(1 + size)
+}
+
+func ReadVarint(r io.Reader, n *int64, err *error) int {
+	var size = ReadUint8(r, n, err)
+	var negate = false
+	if (size >> 4) == 0xF {
+		negate = true
+		size = size & 0x0F
+	}
+	if size > 8 {
+		setFirstErr(err, errors.New("Varint overflow"))
+		return 0
+	}
+	if size == 0 {
+		if negate {
+			setFirstErr(err, errors.New("Varint does not allow negative zero"))
+		}
+		return 0
+	}
+	buf := make([]byte, 8)
+	ReadFull(buf[(8-size):], r, n, err)
+	*n += int64(1 + size)
+	var i = int(binary.BigEndian.Uint64(buf))
+	if negate {
+		return -i
+	} else {
+		return i
+	}
+}
+
+// Uvarint
+
+func WriteUvarint(i uint, w io.Writer, n *int64, err *error) {
+	var size = uvarintSize(uint64(i))
+	WriteUint8(uint8(size), w, n, err)
+	if size > 0 {
+		buf := make([]byte, 8)
+		binary.BigEndian.PutUint64(buf, uint64(i))
+		WriteTo(buf[(8-size):], w, n, err)
+	}
+	*n += int64(1 + size)
+}
+
+func WriteByteSlices(bzz [][]byte, w io.Writer, n *int64, err *error) {
+	WriteVarint(len(bzz), w, n, err)
+	for _, bz := range bzz {
+		WriteByteSlice(bz, w, n, err)
+		if *err != nil {
+			return
+		}
+	}
+}
+
+func WriteByteSlice(bz []byte, w io.Writer, n *int64, err *error) {
+	WriteVarint(len(bz), w, n, err)
+	WriteTo(bz, w, n, err)
+}
+
+func ReadUvarint(r io.Reader, n *int64, err *error) uint {
+	var size = ReadUint8(r, n, err)
+	if size > 8 {
+		setFirstErr(err, errors.New("Uvarint overflow"))
+		return 0
+	}
+	if size == 0 {
+		return 0
+	}
+	buf := make([]byte, 8)
+	ReadFull(buf[(8-size):], r, n, err)
+	*n += int64(1 + size)
+	return uint(binary.BigEndian.Uint64(buf))
+}
+
+func setFirstErr(err *error, newErr error) {
+	if *err == nil && newErr != nil {
+		*err = newErr
+	}
+}

@@ -15,9 +15,11 @@ import (
 
 	"github.com/eris-ltd/eris-keys/crypto"
 
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/tendermint/account"
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/tendermint/wire"
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/golang.org/x/crypto/ripemd160"
+	//"github.com/eris-ltd/eris-db/account"
+	tmint_crypto "github.com/eris-ltd/eris-keys/crypto/helpers"
+	log "github.com/eris-ltd/eris-logger"
+	"github.com/tendermint/go-wire"
+	"golang.org/x/crypto/ripemd160"
 )
 
 var ErrLocked = fmt.Errorf("account is locked")
@@ -28,10 +30,10 @@ func GetKey(addr []byte) (*crypto.Key, error) {
 	// first check if the key is unlocked
 	k := AccountManager.GetKey(addr)
 	if k != nil {
-		logger.Debugln("Using unlocked key")
+		log.Debugln("Using unlocked key")
 		return k, nil
 	}
-	logger.Debugln("key is not unlocked")
+	log.Debugln("key is not unlocked")
 	// now see if we can find an encrypted version on disk
 	isEncrypted, err := crypto.IsEncryptedKey(AccountManager.KeyStore(), addr)
 	if err == nil && isEncrypted {
@@ -102,7 +104,7 @@ func coreImport(auth, keyType, theKey string) ([]byte, error) {
 	var keyStore crypto.KeyStore
 	var err error
 
-	logger.Infof("Importing key. Type (%s). Encrypted (%v)\n", keyType, auth != "")
+	log.Infof("Importing key. Type (%s). Encrypted (%v)\n", keyType, auth != "")
 
 	if auth == "" {
 		if keyStore, err = newKeyStore(); err != nil {
@@ -152,7 +154,7 @@ func coreKeygen(auth, keyType string) ([]byte, error) {
 	var keyStore crypto.KeyStore
 	var err error
 
-	logger.Infof("Generating new key. Type (%s). Encrypted (%v)\n", keyType, auth != "")
+	log.Infof("Generating new key. Type (%s). Encrypted (%v)\n", keyType, auth != "")
 
 	if auth == "" {
 		keyStore, err = newKeyStore()
@@ -172,7 +174,7 @@ func coreKeygen(auth, keyType string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error generating key %s %s", keyType, err)
 	}
-	logger.Infof("Generated new key. Address (%x). Type (%s). Encrypted (%v)\n", key.Address, key.Type, auth != "")
+	log.Infof("Generated new key. Address (%x). Type (%s). Encrypted (%v)\n", key.Address, key.Type, auth != "")
 	return key.Address, nil
 }
 
@@ -242,12 +244,12 @@ func corePub(addr string) ([]byte, error) {
 
 func coreConvert(addr string) ([]byte, error) {
 	type privValidator struct {
-		Address    []byte                 `json:"address"`
-		PubKey     account.PubKeyEd25519  `json:"pub_key"`
-		PrivKey    account.PrivKeyEd25519 `json:"priv_key"`
-		LastHeight int                    `json:"last_height"`
-		LastRound  int                    `json:"last_round"`
-		LastStep   int                    `json:"last_step"`
+		Address    []byte        `json:"address"`
+		PubKey     []interface{} `json:"pub_key"`
+		PrivKey    []interface{} `json:"priv_key"`
+		LastHeight int           `json:"last_height"`
+		LastRound  int           `json:"last_round"`
+		LastStep   int           `json:"last_step"`
 	}
 
 	addrB, err := hex.DecodeString(addr)
@@ -264,16 +266,22 @@ func coreConvert(addr string) ([]byte, error) {
 		return nil, err
 	}
 
-	var pubKey account.PubKeyEd25519
+	var pubKeyWithType []interface{}
+	var pubKey tmint_crypto.PubKeyEd25519
 	copy(pubKey[:], pub)
+	pubKeyWithType = append(pubKeyWithType, tmint_crypto.PubKeyTypeEd25519)
+	pubKeyWithType = append(pubKeyWithType, pubKey)
 
-	var privKey account.PrivKeyEd25519
+	var privKeyWithType []interface{}
+	var privKey tmint_crypto.PrivKeyEd25519
 	copy(privKey[:], key.PrivateKey)
+	privKeyWithType = append(privKeyWithType, tmint_crypto.PrivKeyTypeEd25519)
+	privKeyWithType = append(privKeyWithType, privKey)
 
 	privVal := &privValidator{
 		Address: []byte(addr),
-		PubKey:  pubKey,
-		PrivKey: privKey,
+		PubKey:  pubKeyWithType,
+		PrivKey: privKeyWithType,
 	}
 
 	return wire.JSONBytes(privVal), nil

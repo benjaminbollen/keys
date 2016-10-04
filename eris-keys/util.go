@@ -18,7 +18,10 @@ import (
 
 func hiddenAuth() string {
 	fmt.Printf("Enter Password:")
-	pwd := gopass.GetPasswdMasked()
+	pwd, err := gopass.GetPasswdMasked()
+	if err != nil {
+ 		common.IfExit(err)
+ 	}
 	return string(pwd)
 }
 

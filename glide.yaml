@@ -3,15 +3,7 @@ import:
 - package: github.com/eris-ltd/common
   subpackages:
   - go/common
-- package: github.com/eris-ltd/eris-keys
-  subpackages:
-  - crypto
-  - crypto/ed25519
-  - crypto/randentropy
-  - crypto/secp256k1
-  - crypto/sha3
-  - eris-keys
-  - version
+
 - package: github.com/eris-ltd/eris-logger
 - package: github.com/howeyc/gopass
 - package: github.com/rs/cors
@@ -21,5 +13,6 @@ import:
 - package: github.com/wayn3h0/go-uuid
 - package: golang.org/x/crypto
   subpackages:
+  - sha3
   - ripemd160
   - scrypt

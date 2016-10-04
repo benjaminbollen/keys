@@ -3,7 +3,7 @@ import:
 - package: github.com/eris-ltd/common
   subpackages:
   - go/common
-
+  - go/docs
 - package: github.com/eris-ltd/eris-logger
 - package: github.com/howeyc/gopass
 - package: github.com/rs/cors

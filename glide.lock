@@ -1,5 +1,5 @@
-hash: b9672968bd6abea444d58efa6abf03bf5ee4d207cb47f710eaabc4a7f8c481b9
-updated: 2016-10-04T12:55:46.165078491+02:00
+hash: ad2c9d7d8a027e943242d73f0cc7ac6bd10ec98023d19dee82e1afc24dbb9b6c
+updated: 2016-10-04T15:02:51.783163666+02:00
 imports:
 - name: github.com/bugsnag/bugsnag-go
   version: 718a5c3648c101c24adc20b7d3fe0be7af35a17a
@@ -11,6 +11,7 @@ imports:
   version: 03f50d734b86d2a997233fa4cc34f800c1d16048
   subpackages:
   - go/common
+  - go/docs
 - name: github.com/eris-ltd/eris-logger
   version: 0bba7d52e3cbb5d8b159553e82e46ec1ebea4d4e
 - name: github.com/go-stack/stack

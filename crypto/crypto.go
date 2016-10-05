@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"crypto/sha256"
 	"github.com/eris-ltd/eris-keys/crypto/sha3"
+	"github.com/eris-ltd/eris-keys/crypto/helpers"
 
 	"golang.org/x/crypto/ripemd160"
 )

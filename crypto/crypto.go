@@ -34,6 +34,15 @@ func Sha3(data ...[]byte) []byte {
 	return d.Sum(nil)
 }
 
+func Sha3Hash(data ...[]byte) (h helpers.Hash) {
+	d := sha3.NewKeccak256()
+	for _, b := range data {
+		d.Write(b)
+	}
+	d.Sum(h[:0])
+	return h
+}
+
 // From https://leanpub.com/gocrypto/read#leanpub-auto-block-cipher-modes
 func PKCS7Pad(in []byte) []byte {
 	padding := 16 - (len(in) % 16)

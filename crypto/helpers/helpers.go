@@ -52,6 +52,9 @@ func (pubKey PubKeyEd25519) Address() []byte {
 	return hasher.Sum(nil)
 }
 
+type (
+	Hash    [32]byte
+)
 
 
 

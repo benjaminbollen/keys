@@ -1,31 +1,67 @@
 # TODO - build eris/base
 FROM quay.io/eris/build
-
 MAINTAINER Eris Industries <support@erisindustries.com>
 
-ENV REPOSITORY "github.com/eris-ltd/eris-keys"
-COPY . /go/src/$REPOSITORY/
-WORKDIR /go/src/$REPOSITORY/
-RUN chown -R $USER:$USER ./
-RUN go install
+# Expose ports for 4767:eris-keys API
+EXPOSE 4767
 
-# set the repo and install mint-client
-ENV REPOSITORY github.com/eris-ltd/mint-client
-ENV BRANCH master
-RUN mkdir -p $GOPATH/src/$REPOSITORY
-WORKDIR $GOPATH/src/$REPOSITORY
-RUN git clone --quiet https://$REPOSITORY . && \
-  git checkout --quiet $BRANCH && \
-  go install ./mintkey && \
-  mv $GOPATH/bin/mintkey /usr/local/bin
+#-----------------------------------------------------------------------------
+# install eris-keys's dependencies
 
-USER $USER
+# set the source code path and copy the repository in
+ENV ERIS_KEYS_SRC_PATH $GOPATH/src/github.com/eris-ltd/eris-keys
+ADD glide.yaml $ERIS_KEYS_SRC_PATH/
+ADD glide.lock $ERIS_KEYS_SRC_PATH/
+# [csk] if we vendor the dependencies we should import them b4 the glide install
+
+# install glide for dependency management
+RUN go get github.com/Masterminds/glide \
+  # install dependencies for eris-keys with glide
+  && go get github.com/sgotti/glide-vc \
+  && cd $ERIS_KEYS_SRC_PATH \
+  && glide install \
+  && glide vc \
+  && glide cc
+
+#-----------------------------------------------------------------------------
+# install mint-client [to be deprecated]
+
+ENV ERIS_KEYS_MINT_REPO github.com/eris-ltd/mint-client
+ENV ERIS_KEYS_MINT_SRC_PATH $GOPATH/src/$ERIS_KEYS_MINT_REPO
+
+WORKDIR $ERIS_KEYS_MINT_SRC_PATH
+
+RUN git clone --quiet https://$ERIS_KEYS_MINT_REPO . \
+  && git checkout --quiet master \
+  && go build -o $INSTALL_BASE/mintkey ./mintkey
+
+#-----------------------------------------------------------------------------
+# install eris-keys
+
+# copy in the entire repo now (after dependencies installed)
+COPY . $ERIS_KEYS_SRC_PATH
+
+# build the main eris-db target
+RUN cd $ERIS_KEYS_SRC_PATH/ \
+  # statically link Alpine's c library to provide X-Linux buildability
+  # [csk] see -> https://github.com/eris-ltd/eris-pm/commit/e24c49c7ba1e62509377adacf8da650b51e84e6a
+  && go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/eris-keys
+
+#-----------------------------------------------------------------------------
+# clean up [build container needs to be separated from shipped container]
+
+RUN unset ERIS_KEYS_SRC_PATH \
+  && unset ERIS_KEYS_MINT_SRC_PATH \
+  && apk del --purge go git musl-dev \
+  && rm -rf $GOPATH
+
+# mount the data container on the eris directory
 ENV DATA "/home/eris/.eris/keys"
 RUN mkdir -p $DATA
 RUN chown -R $USER:$USER $DATA
+VOLUME $DATA
 
 # Final Config
-WORKDIR /home/$USER/.eris
-VOLUME $DATA
-EXPOSE 4767
-CMD ["eris-keys", "server", "--host", "0.0.0.0", "--log", "3"]
+USER $USER
+WORKDIR $ERIS
+CMD ["eris-keys", "server", "--host", "0.0.0.0", "--log", "3", "-d"]

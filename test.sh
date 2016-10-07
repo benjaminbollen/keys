@@ -9,6 +9,7 @@ set -e
 echo "-----------------------------"
 echo "starting the server"
 eris-keys server &
+sleep 1
 echo "-----------------------------"
 echo "testing the cli"
 
@@ -25,11 +26,13 @@ do
 	echo "... $KEYTYPE"
 
 	HASH=`eris-keys hash --type sha256 ok`
+	#echo "HASH: $HASH"
 	NAME=testkey1
 	ADDR=`eris-keys gen --type $KEYTYPE --name $NAME --no-pass`
+	#echo "my addr: $ADDR"
 	PUB1=`eris-keys pub --name $NAME`
 	PUB2=`eris-keys pub --addr $ADDR`
-	if [ $PUB1 != $PUB2 ]; then
+	if [ "$PUB1" != "$PUB2" ]; then
 		echo "FAILED pub: got $PUB2, expected $PUB1"
 		exit 1
 	fi
@@ -60,9 +63,9 @@ HASHTYPES=(sha256 ripemd160)
 for HASHTYPE in ${HASHTYPES[*]}
 do
 	echo  "... $HASHTYPE"
-	HASH0=`echo -n $TOHASH | openssl $HASHTYPE | awk '{print toupper($2)}'`
+	HASH0=`echo -n $TOHASH | openssl dgst -$HASHTYPE | awk '{print toupper($2)}'`
 	HASH1=`eris-keys hash --type $HASHTYPE $TOHASH`
-	if [ $HASH0 != $HASH1 ]; then
+	if [ "$HASH0" != "$HASH1" ]; then
 		echo "FAILED hash $HASHTYPE: got $HASH1 expected $HASH0"
 	fi
 	echo "...... passed"
@@ -137,5 +140,4 @@ echo "... passed"
 
 
 # TODO a little more on names...
-
 

@@ -3,9 +3,9 @@
 |[![GoDoc](https://godoc.org/github.com/eris-keys?status.png)](https://godoc.org/github.com/eris-ltd/eris-keys) | Linux |
 |---|-------|
 | Master | [![Circle CI](https://circleci.com/gh/eris-ltd/eris-keys/tree/master.svg?style=svg)](https://circleci.com/gh/eris-ltd/eris-keys/tree/master) |
-| Develop | [![Circle CI](https://circleci.com/gh/eris-ltd/eris-keys/tree/develop.svg?style=svg)](https://circleci.com/gh/eris-ltd/eris-keys/tree/develop) | 
+| Develop | [![Circle CI](https://circleci.com/gh/eris-ltd/eris-keys/tree/develop.svg?style=svg)](https://circleci.com/gh/eris-ltd/eris-keys/tree/develop) |
 
-Eris Keys is a simple **dev-only** tool for generating keys, producing and verifying signatures. These features are exposed through [eris-cli](https://github.com/eris-ltd/eris-cli), the entry point for the Eris platform.
+Eris Keys is a simple **dev-only** tool for generating keys, producing and verifying signatures. These features are exposed through [eris-cli](https://monax.io/docs/documentation/cli), the entry point for the Eris platform.
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ adding support for ED25519, and using AES-GCM for encryption. And of course the 
 
 ## Installation
 
-`eris-keys` is intended to be used an eris service with [eris-cli](https://github.com/eris-ltd/eris-cli), e.g., `eris services start keys`.
+`eris-keys` is intended to be used an eris service with [eris-cli](https://monax.io/docs/documentation/cli), e.g., `eris services start keys`.
 
 ### For Developers
 

@@ -1,31 +1,21 @@
-# TODO - build eris/base
 FROM quay.io/eris/build
-MAINTAINER Eris Industries <support@erisindustries.com>
+MAINTAINER Monax <support@monax.io>
 
-# Expose ports for 4767:eris-keys API
-EXPOSE 4767
+# Install eris-keys, a go app for development signing
+ENV TARGET eris-keys
+ENV REPO $GOPATH/src/github.com/eris-ltd/$TARGET
 
-#-----------------------------------------------------------------------------
-# install eris-keys's dependencies
+ADD ./glide.yaml $REPO/
+ADD ./glide.lock $REPO/
+WORKDIR $REPO
+RUN glide install
 
-# set the source code path and copy the repository in
-ENV ERIS_KEYS_SRC_PATH $GOPATH/src/github.com/eris-ltd/eris-keys
-ADD glide.yaml $ERIS_KEYS_SRC_PATH/
-ADD glide.lock $ERIS_KEYS_SRC_PATH/
-# [csk] if we vendor the dependencies we should import them b4 the glide install
+COPY . $REPO/.
+RUN cd $REPO/cmd/$TARGET && \
+  go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/$TARGET
 
-# install glide for dependency management
-RUN go get github.com/Masterminds/glide \
-  # install dependencies for eris-keys with glide
-  && go get github.com/sgotti/glide-vc \
-  && cd $ERIS_KEYS_SRC_PATH \
-  && glide install \
-  && glide vc \
-  && glide cc
-
-#-----------------------------------------------------------------------------
-# install mint-client [to be deprecated]
-
+# build customizations start here
+# install mint-key [to be deprecated]
 ENV ERIS_KEYS_MINT_REPO github.com/eris-ltd/mint-client
 ENV ERIS_KEYS_MINT_SRC_PATH $GOPATH/src/$ERIS_KEYS_MINT_REPO
 
@@ -33,35 +23,6 @@ WORKDIR $ERIS_KEYS_MINT_SRC_PATH
 
 RUN git clone --quiet https://$ERIS_KEYS_MINT_REPO . \
   && git checkout --quiet master \
-  && go build -o $INSTALL_BASE/mintkey ./mintkey
-
-#-----------------------------------------------------------------------------
-# install eris-keys
-
-# copy in the entire repo now (after dependencies installed)
-COPY . $ERIS_KEYS_SRC_PATH
-
-# build the main eris-db target
-RUN cd $ERIS_KEYS_SRC_PATH/ \
-  # statically link Alpine's c library to provide X-Linux buildability
-  # [csk] see -> https://github.com/eris-ltd/eris-pm/commit/e24c49c7ba1e62509377adacf8da650b51e84e6a
-  && go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/eris-keys
-
-#-----------------------------------------------------------------------------
-# clean up [build container needs to be separated from shipped container]
-
-RUN unset ERIS_KEYS_SRC_PATH \
-  && unset ERIS_KEYS_MINT_SRC_PATH \
-  && apk del --purge go git musl-dev \
-  && rm -rf $GOPATH
-
-# mount the data container on the eris directory
-ENV DATA "/home/eris/.eris/keys"
-RUN mkdir -p $DATA
-RUN chown -R $USER:$USER $DATA
-VOLUME $DATA
-
-# Final Config
-USER $USER
-WORKDIR $ERIS
-CMD ["eris-keys", "server", "--host", "0.0.0.0", "--log", "3", "-d"]
+  && go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/mintkey ./mintkey \
+  && unset ERIS_KEYS_MINT_REPO \
+  && unset ERIS_KEYS_MINT_SRC_PATH

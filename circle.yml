@@ -12,11 +12,12 @@ dependencies:
   override:
     - sudo curl -L -o /usr/bin/docker 'http://s3-external-1.amazonaws.com/circle-downloads/docker-1.8.2-circleci'; chmod 0755 /usr/bin/docker; true
     - sudo service docker start
-
+    - go get github.com/Masterminds/glide
 test:
   override:
+    - cd $REPO && glide install
     - cd $REPO && glide novendor | xargs go test
-    - docker build -t eris/keys-test -f Dockerfile.test .
+    - docker build -t eris/keys-test -f Dockerfile .
     - docker run -it eris/keys-test ./test.sh
 
 deployment:

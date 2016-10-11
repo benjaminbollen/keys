@@ -1,7 +1,7 @@
 FROM quay.io/eris/base:alpine
 MAINTAINER Monax <support@monax.io>
 
-ENV NAME eris-keys
+ENV TARGET eris-keys
 
 # runtime customization start here
 # install mint-key [to be deprecated]
@@ -10,8 +10,8 @@ RUN chmod +x $INSTALL_BASE/mintkey
 # runtime customization end here
 
 # Get the binary from the artifact in pwd
-COPY ./"$NAME"_build_artifact $INSTALL_BASE/$NAME
-RUN chmod +x $INSTALL_BASE/$NAME
+COPY ./"$TARGET"_build_artifact $INSTALL_BASE/$TARGET
+RUN chmod +x $INSTALL_BASE/$TARGET
 
 # Finalize
 RUN chown --recursive $USER:$USER /home/$USER

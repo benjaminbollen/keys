@@ -49,10 +49,6 @@ docker build -t $IMAGE:$release_min -f Dockerfile.deploy $REPO
 # Cleanup
 rm $REPO/"$TARGET"_build_artifact
 rm $REPO/mintkey
-if [ "$CI" ]
-then
-  docker rmi $IMAGE:build
-fi
 
 # Extra Tags
 if [[ "$branch" = "master" ]]

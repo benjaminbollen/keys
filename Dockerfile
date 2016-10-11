@@ -1,31 +1,28 @@
-# TODO - build eris/base
 FROM quay.io/eris/build
+MAINTAINER Monax <support@monax.io>
 
-MAINTAINER Eris Industries <support@erisindustries.com>
+# Install eris-keys, a go app for development signing
+ENV TARGET eris-keys
+ENV REPO $GOPATH/src/github.com/eris-ltd/$TARGET
 
-ENV REPOSITORY "github.com/eris-ltd/eris-keys"
-COPY . /go/src/$REPOSITORY/
-WORKDIR /go/src/$REPOSITORY/
-RUN chown -R $USER:$USER ./
-RUN go install
+ADD ./glide.yaml $REPO/
+ADD ./glide.lock $REPO/
+WORKDIR $REPO
+RUN glide install
 
-# set the repo and install mint-client
-ENV REPOSITORY github.com/eris-ltd/mint-client
-ENV BRANCH master
-RUN mkdir -p $GOPATH/src/$REPOSITORY
-WORKDIR $GOPATH/src/$REPOSITORY
-RUN git clone --quiet https://$REPOSITORY . && \
-  git checkout --quiet $BRANCH && \
-  go install ./mintkey && \
-  mv $GOPATH/bin/mintkey /usr/local/bin
+COPY . $REPO/.
+RUN cd $REPO/cmd/$TARGET && \
+  go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/$TARGET
 
-USER $USER
-ENV DATA "/home/eris/.eris/keys"
-RUN mkdir -p $DATA
-RUN chown -R $USER:$USER $DATA
+# build customizations start here
+# install mint-key [to be deprecated]
+ENV ERIS_KEYS_MINT_REPO github.com/eris-ltd/mint-client
+ENV ERIS_KEYS_MINT_SRC_PATH $GOPATH/src/$ERIS_KEYS_MINT_REPO
 
-# Final Config
-WORKDIR /home/$USER/.eris
-VOLUME $DATA
-EXPOSE 4767
-CMD ["eris-keys", "server", "--host", "0.0.0.0", "--log", "3"]
+WORKDIR $ERIS_KEYS_MINT_SRC_PATH
+
+RUN git clone --quiet https://$ERIS_KEYS_MINT_REPO . \
+  && git checkout --quiet master \
+  && go build --ldflags '-extldflags "-static"' -o $INSTALL_BASE/mintkey ./mintkey \
+  && unset ERIS_KEYS_MINT_REPO \
+  && unset ERIS_KEYS_MINT_SRC_PATH

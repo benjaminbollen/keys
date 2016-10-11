@@ -4,11 +4,11 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"fmt"
-	//"golang.org/x/crypto/pbkdf2"
 	"crypto/sha256"
 	"github.com/eris-ltd/eris-keys/crypto/sha3"
+	"github.com/eris-ltd/eris-keys/crypto/helpers"
 
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/golang.org/x/crypto/ripemd160"
+	"golang.org/x/crypto/ripemd160"
 )
 
 func Ripemd160(data ...[]byte) []byte {
@@ -33,6 +33,15 @@ func Sha3(data ...[]byte) []byte {
 		d.Write(b)
 	}
 	return d.Sum(nil)
+}
+
+func Sha3Hash(data ...[]byte) (h helpers.Hash) {
+	d := sha3.NewKeccak256()
+	for _, b := range data {
+		d.Write(b)
+	}
+	d.Sum(h[:0])
+	return h
 }
 
 // From https://leanpub.com/gocrypto/read#leanpub-auto-block-cipher-modes

@@ -1,16 +1,13 @@
 /*
 	This file is part of go-ethereum
-
 	go-ethereum is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-
 	go-ethereum is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
-
 	You should have received a copy of the GNU Lesser General Public License
 	along with go-ethereum.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -31,12 +28,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/eris-ltd/eris-keys/crypto/ed25519"
+	"github.com/tendermint/ed25519"
 	"github.com/eris-ltd/eris-keys/crypto/randentropy"
 	"github.com/eris-ltd/eris-keys/crypto/secp256k1"
 
-	"github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/eris-ltd/tendermint/account"
-	uuid "github.com/eris-ltd/eris-keys/Godeps/_workspace/src/github.com/wayn3h0/go-uuid"
+	"github.com/eris-ltd/eris-keys/crypto/helpers"
+	uuid "github.com/wayn3h0/go-uuid"
 )
 
 type InvalidCurveErr string
@@ -339,7 +336,7 @@ func keyFromPrivEd25519(addrType AddrType, priv []byte) (*Key, error) {
 	privKeyBytes := new([64]byte)
 	copy(privKeyBytes[:32], priv)
 	pubKeyBytes := ed25519.MakePublicKey(privKeyBytes)
-	pubKey := account.PubKeyEd25519(*pubKeyBytes)
+	pubKey := helpers.PubKeyEd25519(*pubKeyBytes)
 	id, _ := uuid.NewRandom()
 	return &Key{
 		Id:         id,
@@ -367,10 +364,10 @@ func signSecp256k1(k *Key, hash []byte) ([]byte, error) {
 
 func signEd25519(k *Key, hash []byte) ([]byte, error) {
 	priv := k.PrivateKey
-	var privKey account.PrivKeyEd25519
+	var privKey helpers.PrivKeyEd25519
 	copy(privKey[:], priv)
 	sig := privKey.Sign(hash)
-	sigB := sig.(account.SignatureEd25519)
+	sigB := sig.(helpers.SignatureEd25519)
 	return sigB[:], nil
 }
 

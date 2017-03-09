@@ -30,7 +30,6 @@ deployment:
       - tests/build_tool.sh
       - "docker tag quay.io/eris/keys:build throw:build && docker rmi quay.io/eris/keys:build"
       - docker push quay.io/eris/keys
-      - docs/build.sh master
   develop:
     branch: develop
     commands:
@@ -38,4 +37,3 @@ deployment:
       - tests/build_tool.sh
       - "docker rmi quay.io/eris/keys:latest && docker tag quay.io/eris/keys:build throw:build && docker rmi quay.io/eris/keys:build"
       - docker push quay.io/eris/keys
-      - docs/build.sh

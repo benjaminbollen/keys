@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/eris-ltd/common/go/common"
-	ed25519 "github.com/eris-ltd/eris-keys/crypto/helpers"
-	"github.com/eris-ltd/eris-keys/crypto"
+	"github.com/monax/common/go/common"
+	ed25519 "github.com/monax/eris-keys/crypto/helpers"
+	"github.com/monax/eris-keys/crypto"
 )
 
 var (

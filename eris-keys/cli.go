@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/eris-ltd/common/go/common"
-	log "github.com/eris-ltd/eris-logger"
+	. "github.com/monax/common/go/common"
+	log "github.com/monax/eris-logger"
 	//"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
 )

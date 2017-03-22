@@ -1,6 +1,7 @@
 package: github.com/monax/keys
 import:
 - package: github.com/monax/eris
+  version: aea421b44214bcab86aa421d7825f0b1d835a751
   subpackages:
   - config
   - log

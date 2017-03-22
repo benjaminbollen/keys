@@ -35,7 +35,7 @@ adding support for ED25519, and using AES-GCM for encryption. And of course the 
 
 1. [Install go](https://golang.org/doc/install)
 2. Ensure you have gmp installed (sudo apt-get install libgmp3-dev || brew install gmp)
-3. `go get github.com/monax/keys`
+3. `go get github.com/monax/keys && glide install`
 
 ## Usage
 

@@ -3,7 +3,7 @@ MAINTAINER Monax <support@monax.io>
 
 # Install eris-keys, a go app for development signing
 ENV TARGET eris-keys
-ENV REPO $GOPATH/src/github.com/eris-ltd/$TARGET
+ENV REPO $GOPATH/src/github.com/monax/keys
 
 ADD ./glide.yaml $REPO/
 ADD ./glide.lock $REPO/
@@ -16,7 +16,7 @@ RUN cd $REPO/cmd/$TARGET && \
 
 # build customizations start here
 # install mint-key [to be deprecated]
-ENV ERIS_KEYS_MINT_REPO github.com/eris-ltd/mint-client
+ENV ERIS_KEYS_MINT_REPO github.com/monax/mint-client
 ENV ERIS_KEYS_MINT_SRC_PATH $GOPATH/src/$ERIS_KEYS_MINT_REPO
 
 WORKDIR $ERIS_KEYS_MINT_SRC_PATH

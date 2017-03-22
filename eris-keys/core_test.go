@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monax/common/go/common"
+	"github.com/monax/eris/config"
 	"github.com/monax/keys/crypto"
 	ed25519 "github.com/monax/keys/crypto/helpers"
 )
@@ -19,7 +19,7 @@ var (
 
 func init() {
 	// TODO: randomize and do setup/tear down for tests
-	KeysDir = common.ScratchPath
+	KeysDir = confi.ScratchPath
 }
 
 func dumpKey(k *crypto.Key) {

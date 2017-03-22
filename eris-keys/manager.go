@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/monax/eris-logger"
+	log "github.com/monax/eris/log"
 	"github.com/monax/keys/crypto"
 )
 

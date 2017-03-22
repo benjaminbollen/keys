@@ -1,13 +1,14 @@
 package crypto
 
 import (
-	"github.com/monax/common/go/common"
 	"reflect"
 	"testing"
+
+	"github.com/monax/eris/config"
 )
 
 func TestKeyStorePlain(t *testing.T) {
-	ks := NewKeyStorePlain(common.KeysPath)
+	ks := NewKeyStorePlain(config.KeysPath)
 	f := func(typ KeyType) {
 		pass := "" // not used but required by API
 		k1, err := ks.GenerateNewKey(typ, pass)
@@ -39,7 +40,7 @@ func TestKeyStorePlain(t *testing.T) {
 }
 
 func TestKeyStorePassphrase(t *testing.T) {
-	ks := NewKeyStorePassphrase(common.KeysPath)
+	ks := NewKeyStorePassphrase(config.KeysPath)
 	f := func(typ KeyType) {
 		pass := "foo"
 		k1, err := ks.GenerateNewKey(typ, pass)
@@ -69,7 +70,7 @@ func TestKeyStorePassphrase(t *testing.T) {
 }
 
 func TestKeyStorePassphraseDecryptionFail(t *testing.T) {
-	ks := NewKeyStorePassphrase(common.KeysPath)
+	ks := NewKeyStorePassphrase(config.KeysPath)
 	pass := "foo"
 	f := func(typ KeyType) {
 		k1, err := ks.GenerateNewKey(KeyType{CurveTypeSecp256k1, AddrTypeSha3}, pass)

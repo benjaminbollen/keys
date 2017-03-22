@@ -7,13 +7,8 @@ imports:
   - errors
 - name: github.com/bugsnag/panicwrap
   version: aa7703c9414b36d4e9b2e42e6c704d0bfae7db64
-- name: github.com/monax/common
-  version: 8ca15f5455104403db4202c995e2f6e161654c02
-  subpackages:
-  - go/common
-  - go/docs
-- name: github.com/monax/eris-logger
-  version: 0bba7d52e3cbb5d8b159553e82e46ec1ebea4d4e
+- name: github.com/monax/eris
+  version: release-0.16
 - name: github.com/go-stack/stack
   version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
 - name: github.com/howeyc/gopass

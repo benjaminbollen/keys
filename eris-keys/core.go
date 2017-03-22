@@ -15,7 +15,7 @@ import (
 
 	"github.com/monax/keys/crypto"
 
-	log "github.com/monax/eris-logger"
+	log "github.com/monax/eris/log"
 	tmint_crypto "github.com/monax/keys/crypto/helpers"
 	"github.com/tendermint/go-wire"
 	"golang.org/x/crypto/ripemd160"

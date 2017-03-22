@@ -2,10 +2,12 @@ package helpers
 
 import (
 	"bytes"
+
+	"github.com/monax/eris/util"
+
+	"github.com/tendermint/ed25519"
 	"github.com/tendermint/go-wire"
 	"golang.org/x/crypto/ripemd160"
-	"github.com/monax/common/go/common"
-	"github.com/tendermint/ed25519"
 )
 
 type Signature interface {
@@ -43,7 +45,7 @@ func (pubKey PubKeyEd25519) Address() []byte {
 	w, n, err := new(bytes.Buffer), new(int), new(error)
 	wire.WriteBinary(pubKey[:], w, n, err)
 	if *err != nil {
-		common.IfExit(*err)
+		util.IfExit(*err)
 	}
 	// append type byte
 	encodedPubkey := append([]byte{1}, w.Bytes()...)
@@ -53,8 +55,5 @@ func (pubKey PubKeyEd25519) Address() []byte {
 }
 
 type (
-	Hash    [32]byte
+	Hash [32]byte
 )
-
-
-

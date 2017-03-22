@@ -8,8 +8,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/monax/common/go/common"
-	log "github.com/monax/eris-logger"
+	"github.com/monax/eris/log"
+	"github.com/monax/eris/util"
+
 	"github.com/howeyc/gopass"
 )
 
@@ -20,8 +21,8 @@ func hiddenAuth() string {
 	fmt.Printf("Enter Password:")
 	pwd, err := gopass.GetPasswdMasked()
 	if err != nil {
- 		common.IfExit(err)
- 	}
+		util.IfExit(err)
+	}
 	return string(pwd)
 }
 
@@ -31,7 +32,7 @@ func hiddenAuth() string {
 // most commands require at least one of --name or --addr
 func checkGetNameAddr(name, addr string) string {
 	addr, err := getNameAddr(name, addr)
-	common.IfExit(err)
+	util.IfExit(err)
 	return addr
 }
 

@@ -6,18 +6,18 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/monax/common/go/common"
-	log "github.com/monax/eris-logger"
-	//"github.com/howeyc/gopass"
+	"github.com/monax/eris/log"
+	"github.com/monax/eris/util"
+
 	"github.com/spf13/cobra"
 )
 
 func ExitConnectErr(err error) {
-	Exit(fmt.Errorf("Could not connect to eris-keys server. Start it with `eris-keys server &`. Error: %v", err))
+	util.Exit(fmt.Errorf("Could not connect to eris-keys server. Start it with `eris-keys server &`. Error: %v", err))
 }
 
 func cliServer(cmd *cobra.Command, args []string) {
-	IfExit(StartServer(KeyHost, KeyPort))
+	util.IfExit(StartServer(KeyHost, KeyPort))
 }
 
 func cliKeygen(cmd *cobra.Command, args []string) {
@@ -38,7 +38,7 @@ func cliLock(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
@@ -47,7 +47,7 @@ func cliConvert(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
@@ -57,7 +57,7 @@ func cliUnlock(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
@@ -68,53 +68,53 @@ func cliPub(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
 func cliSign(cmd *cobra.Command, args []string) {
 	_, addr, name := KeysDir, KeyAddr, KeyName
 	if len(args) != 1 {
-		Exit(fmt.Errorf("enter a msg/hash to sign"))
+		util.Exit(fmt.Errorf("enter a msg/hash to sign"))
 	}
 	msg := args[0]
 	r, err := Call("sign", map[string]string{"addr": addr, "name": name, "msg": msg})
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
 func cliVerify(cmd *cobra.Command, args []string) {
 	if len(args) != 3 {
-		Exit(fmt.Errorf("enter a msg/hash, a signature, and a public key"))
+		util.Exit(fmt.Errorf("enter a msg/hash, a signature, and a public key"))
 	}
 	msg, sig, pub := args[0], args[1], args[2]
 	r, err := Call("verify", map[string]string{"type": KeyType, "pub": pub, "msg": msg, "sig": sig})
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
 func cliHash(cmd *cobra.Command, args []string) {
 	if len(args) != 1 {
-		Exit(fmt.Errorf("enter something to hash"))
+		util.Exit(fmt.Errorf("enter something to hash"))
 	}
 	msg := args[0]
 	r, err := Call("hash", map[string]string{"type": HashType, "msg": msg, "hex": fmt.Sprintf("%v", HexByte)})
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
 func cliImport(cmd *cobra.Command, args []string) {
 	if len(args) != 1 {
-		Exit(fmt.Errorf("enter a private key, filename, or raw json"))
+		util.Exit(fmt.Errorf("enter a private key, filename, or raw json"))
 	}
 
 	key := args[0]
@@ -123,7 +123,7 @@ func cliImport(cmd *cobra.Command, args []string) {
 	if _, err := os.Stat(key); err == nil {
 		keyBytes, err := ioutil.ReadFile(key)
 		key = string(keyBytes)
-		IfExit(err)
+		util.IfExit(err)
 	}
 
 	var auth string
@@ -136,7 +136,7 @@ func cliImport(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
@@ -153,7 +153,7 @@ func cliName(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }
 
@@ -162,9 +162,9 @@ func cliNameLs(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	names := make(map[string]string)
-	IfExit(json.Unmarshal([]byte(r), &names))
+	util.IfExit(json.Unmarshal([]byte(r), &names))
 	for n, a := range names {
 		log.Printf("%s: %s\n", n, a)
 	}
@@ -180,6 +180,6 @@ func cliNameRm(cmd *cobra.Command, args []string) {
 	if _, ok := err.(ErrConnectionRefused); ok {
 		ExitConnectErr(err)
 	}
-	IfExit(err)
+	util.IfExit(err)
 	LogToChannel([]byte(r))
 }

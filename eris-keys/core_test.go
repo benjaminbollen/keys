@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/monax/common/go/common"
-	ed25519 "github.com/monax/eris-keys/crypto/helpers"
-	"github.com/monax/eris-keys/crypto"
+	"github.com/monax/keys/crypto"
+	ed25519 "github.com/monax/keys/crypto/helpers"
 )
 
 var (

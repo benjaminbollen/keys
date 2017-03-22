@@ -13,11 +13,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/monax/eris-keys/crypto"
+	"github.com/monax/keys/crypto"
 
-	//"github.com/monax/eris-db/account"
-	tmint_crypto "github.com/monax/eris-keys/crypto/helpers"
 	log "github.com/monax/eris-logger"
+	tmint_crypto "github.com/monax/keys/crypto/helpers"
 	"github.com/tendermint/go-wire"
 	"golang.org/x/crypto/ripemd160"
 )

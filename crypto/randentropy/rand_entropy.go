@@ -3,7 +3,7 @@ package randentropy
 import (
 	crand "crypto/rand"
 	"encoding/binary"
-	"github.com/monax/eris-keys/crypto/sha3"
+	"github.com/monax/keys/crypto/sha3"
 	"io"
 	"os"
 	"strings"

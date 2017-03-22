@@ -29,10 +29,10 @@ import (
 	"strings"
 
 	"github.com/tendermint/ed25519"
-	"github.com/monax/eris-keys/crypto/randentropy"
-	"github.com/monax/eris-keys/crypto/secp256k1"
+	"github.com/monax/keys/crypto/randentropy"
+	"github.com/monax/keys/crypto/secp256k1"
 
-	"github.com/monax/eris-keys/crypto/helpers"
+	"github.com/monax/keys/crypto/helpers"
 	uuid "github.com/wayn3h0/go-uuid"
 )
 

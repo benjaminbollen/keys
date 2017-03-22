@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/rs/cors"
-	log "github.com/eris-ltd/eris-logger"
+	log "github.com/monax/eris-logger"
 )
 
 //------------------------------------------------------------------------

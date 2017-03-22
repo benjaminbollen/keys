@@ -24,8 +24,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/eris-ltd/eris-keys/crypto"
-	log "github.com/eris-ltd/eris-logger"
+	"github.com/monax/eris-keys/crypto"
+	log "github.com/monax/eris-logger"
 )
 
 type Manager struct {

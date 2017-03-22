@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/tendermint/go-wire"
 	"golang.org/x/crypto/ripemd160"
-	"github.com/eris-ltd/common/go/common"
+	"github.com/monax/common/go/common"
 	"github.com/tendermint/ed25519"
 )
 

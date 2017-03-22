@@ -5,7 +5,7 @@ machine:
     - rm -rf $REPO
     - mkdir -p ${GOPATH%%:*}/src/github.com/${CIRCLE_PROJECT_USERNAME}
     - cp -r ${HOME}/${CIRCLE_PROJECT_REPONAME} $REPO
-    - git config --global user.email "billings@erisindustries.com"
+    - git config --global user.email "billings@monax.io"
     - git config --global user.name "Billings the Bot"
 
 dependencies:

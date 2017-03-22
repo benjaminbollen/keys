@@ -20,7 +20,7 @@ test:
     - docker build -t eris/keys-test -f Dockerfile .
     # TODO: this test breaks the cross-repository paradigm for testing pipeline
     # and needs to be integrated into that standard
-    - docker run -it eris/keys-test /go/src/github.com/eris-ltd/eris-keys/test.sh
+    - docker run -it eris/keys-test /go/src/github.com/monax/keys/test.sh
 
 deployment:
   master:

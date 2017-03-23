@@ -9,6 +9,10 @@ imports:
   version: aa7703c9414b36d4e9b2e42e6c704d0bfae7db64
 - name: github.com/monax/eris
   version: aea421b44214bcab86aa421d7825f0b1d835a751
+  subpackages:
+  - config
+  - log
+  - util
 - name: github.com/go-stack/stack
   version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
 - name: github.com/howeyc/gopass

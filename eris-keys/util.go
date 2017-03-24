@@ -8,8 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/monax/common/go/common"
-	log "github.com/monax/eris-logger"
+	"github.com/monax/keys/common"
 	"github.com/howeyc/gopass"
 )
 
@@ -93,7 +92,7 @@ func Call(method string, args map[string]string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error marshaling args map: %v", err)
 	}
-	log.Debugln("calling", url)
+	// log.Debugln("calling", url)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(b))
 	r, errS, err := requestResponse(req)
 	if err != nil {

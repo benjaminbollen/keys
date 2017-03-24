@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/monax/common/go/common"
-	log "github.com/monax/eris-logger"
+	"github.com/monax/keys/common"
+
 	"github.com/spf13/cobra"
 )
 
@@ -35,7 +35,7 @@ var (
 
 	/* flag vars */
 	//global
-	logLevel int
+	logLevel int // currently only info level available; ignored
 	KeysDir  string
 	KeyName  string
 	KeyAddr  string
@@ -52,9 +52,9 @@ var (
 
 	// lockCmd only
 	UnlockTime int // minutes
-	
+
 	Verbose bool
-	Debug bool
+	Debug   bool
 )
 
 var EKeys = &cobra.Command{
@@ -211,12 +211,6 @@ func checkMakeDataDir(dir string) error {
 
 func before(cmd *cobra.Command, args []string) {
 
-	log.SetLevel(log.WarnLevel)
-	if Verbose {
-	  log.SetLevel(log.InfoLevel)
-	} else if Debug {
-	  log.SetLevel(log.DebugLevel)
-	}
 	DaemonAddr = fmt.Sprintf("http://%s:%s", KeyHost, KeyPort)
 }
 

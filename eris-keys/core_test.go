@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monax/common/go/common"
+	"github.com/monax/keys/common"
 	"github.com/monax/keys/crypto"
 	ed25519 "github.com/monax/keys/crypto/helpers"
 )

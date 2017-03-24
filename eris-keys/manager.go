@@ -21,10 +21,10 @@ package keys
 // We really only wanted the TimeoutUnlock feature
 
 import (
+	"log"
 	"sync"
 	"time"
 
-	log "github.com/monax/eris-logger"
 	"github.com/monax/keys/crypto"
 )
 
@@ -88,7 +88,7 @@ func (am *Manager) TimedUnlock(addr []byte, keyAuth string, timeout time.Duratio
 			close(u.abort)
 		}
 	}
-	log.Infof("Unlocking key %X for %v\n", addr, timeout)
+	log.Printf("Unlocking key %X for %v\n", addr, timeout)
 	if timeout > 0 {
 		u = &unlocked{Key: key, abort: make(chan struct{})}
 		go am.expire(addr, u, timeout)
@@ -108,7 +108,7 @@ func (am *Manager) expire(addr []byte, u *unlocked, timeout time.Duration) {
 	case <-t.C:
 		am.mutex.Lock()
 
-		log.Infof("Relocking %X\n", addr)
+		log.Printf("Relocking %X\n", addr)
 		// only drop if it's still the same key instance that dropLater
 		// was launched with. we can check that using pointer equality
 		// because the map stores a new pointer every time the key is

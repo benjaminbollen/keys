@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/monax/keys/common"
 	"github.com/howeyc/gopass"
+	"github.com/monax/keys/common"
 )
 
 //------------------------------------------------------------
@@ -19,8 +19,8 @@ func hiddenAuth() string {
 	fmt.Printf("Enter Password:")
 	pwd, err := gopass.GetPasswdMasked()
 	if err != nil {
- 		common.IfExit(err)
- 	}
+		common.IfExit(err)
+	}
 	return string(pwd)
 }
 

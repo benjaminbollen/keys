@@ -2,7 +2,7 @@ package crypto
 
 import (
 	"github.com/monax/keys/common"
-	
+
 	"reflect"
 	"testing"
 )

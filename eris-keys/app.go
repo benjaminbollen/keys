@@ -217,4 +217,3 @@ func before(cmd *cobra.Command, args []string) {
 func LogToChannel(answer []byte) {
 	fmt.Fprintln(os.Stdout, string(answer))
 }
-

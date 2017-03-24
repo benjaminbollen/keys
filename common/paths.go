@@ -2,8 +2,8 @@ package common
 
 import (
 	"os"
-	"runtime"
 	"path/filepath"
+	"runtime"
 )
 
 var (

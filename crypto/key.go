@@ -28,9 +28,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/ed25519"
 	"github.com/monax/keys/crypto/randentropy"
 	"github.com/monax/keys/crypto/secp256k1"
+	"github.com/tendermint/ed25519"
 
 	"github.com/monax/keys/crypto/helpers"
 	uuid "github.com/wayn3h0/go-uuid"

@@ -5,9 +5,9 @@ import (
 
 	"github.com/monax/keys/common"
 
+	"github.com/tendermint/ed25519"
 	"github.com/tendermint/go-wire"
 	"golang.org/x/crypto/ripemd160"
-	"github.com/tendermint/ed25519"
 )
 
 type Signature interface {
@@ -57,6 +57,3 @@ func (pubKey PubKeyEd25519) Address() []byte {
 type (
 	Hash [32]byte
 )
-
-
-
